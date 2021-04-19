@@ -13,19 +13,21 @@ public class playercontroller : MonoBehaviour
 
     float levelLoadDelay = 2f;
     public float Weight = 9.8f;
+    float horizontalMove = 0f;
     Rigidbody2D rigidBody;
     public Animator animator;
     public LivesManager LM;
     public scoreManager scoreAccumulator;
     public bool isOnGround = true;
     private int Level1Score = 25;
-
+    SpriteRenderer Renderer;
     enum State { Alive, Dead, trancending }
     State state = State.Alive;
 
     // Start is called before the first frame update
     void Start()
     {
+        Renderer = GetComponent<SpriteRenderer>();
         rigidBody = GetComponent<Rigidbody2D>();
     }
 
@@ -40,37 +42,59 @@ public class playercontroller : MonoBehaviour
     }
     void Move()
     {
-        float horizontalMove = Input.GetAxisRaw("Horizontal");
-        float moveBy = horizontalMove * speed;
-        Vector3 characterScale = transform.localScale;
-        rigidBody.velocity = new Vector2(moveBy, rigidBody.velocity.y);
-        animator.SetFloat("Speed",Mathf.Abs( horizontalMove));
+        horizontalMove = Input.GetAxisRaw("Horizontal") * speed;
+        if (horizontalMove > 0)
+        {
+            Renderer.flipX = false;
+            Vector3 characterScale = transform.localScale;
+            rigidBody.velocity = new Vector2(horizontalMove, rigidBody.velocity.y);
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+
+        }
+        else if (horizontalMove < 0)
+        {
+            Vector3 characterScale = transform.localScale;
+            rigidBody.velocity = new Vector2(horizontalMove, rigidBody.velocity.y);
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+            Renderer.flipX = true;
+        }
+        else
+        {
+            rigidBody.velocity = new Vector2(horizontalMove, rigidBody.velocity.y);
+
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        }
+            
+
+        //else
+        //{
+        //    animator.Play("idle_animation");
+        //}
     }
     private void Jump()
     {
-        if (Input.GetKey(KeyCode.Space) && isOnGround)
+       
+            if (Input.GetKey(KeyCode.Space) && isOnGround)//&& horizontalMove != 0
         {
-            rigidBody.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
-            animator.SetBool("IsJumping", true);
+                rigidBody.AddForce(Vector2.up * jumpHeight, ForceMode2D.Impulse);
+                animator.SetBool("IsJumping", true);
+                Move();
+                isOnGround = false;
 
-        }
+            }
 
+            if (transform.position.y >= jumpLimit)//set limit cap on how high can player jump
+            {
 
-        else
-        {
-            rigidBody.AddForce(-Vector2.up * jumpHeight * Time.deltaTime, ForceMode2D.Impulse);
-            Move();
+                Move();
+                //rigidBody.velocity.y = Vector2.zero;
+                Vector2 vel = rigidBody.velocity;
+                vel.y -= rigidBody.mass * Time.deltaTime;
+                rigidBody.velocity = vel;
+            }
+        
+ 
 
-        }
-        if (transform.position.y >= jumpLimit)//set limit cap on how high can player jump
-        {
-            
-            Move();
-            rigidBody.velocity = Vector2.zero;
-            Vector2 vel = rigidBody.velocity;
-            vel.y -= Weight * Time.deltaTime;
-            rigidBody.velocity = vel;
-        }
     }
     //these functions are for not double jumping, because of floor collision
     void OnCollisionEnter2D(Collision2D Col)
@@ -81,15 +105,15 @@ public class playercontroller : MonoBehaviour
             animator.SetBool("IsJumping", false);
         }
      }
-    private void OnCollisionExit2D(Collision2D Col)
+    void OnCollisionExit2D(Collision2D Col)
     {
-        if (Col.gameObject.CompareTag("ground"))
+        if (!(Col.gameObject.CompareTag("ground")))
         {
             isOnGround = false;
             animator.SetBool("IsJumping", true);
         }
     }
-    private void OnTriggerEnter2D(Collider2D Col)//this is for destroying coin when triggered by player
+    void OnTriggerEnter2D(Collider2D Col)//this is for destroying coin when triggered by player
     {
         if (Col.gameObject.CompareTag("coin"))
         {
@@ -102,17 +126,17 @@ public class playercontroller : MonoBehaviour
 
 
 
-    private void OnDeath()//on death - stop sound, play death sound, return to level 1
+   void OnDeath()//on death - stop sound, play death sound, return to level 1
     { if(LM.Life == 0)
         state = State.Dead;
         Invoke("LoadOnDeath", levelLoadDelay);
     }
 
-    private void LoadOnDeath()
+    void LoadOnDeath()
     {
         SceneManager.LoadScene(0);//change this when you add multiple scenes!
     }
-    private void LoadNextLevel()
+    void LoadNextLevel()
     {
         int currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
         int nextLevelIndex = currentLevelIndex + 1;

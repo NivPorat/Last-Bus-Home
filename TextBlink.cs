@@ -35,7 +35,7 @@ public class TextBlink : MonoBehaviour
     private void Update()
     {//loads next scene on any input
         if (Input.anyKey)
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene("Login");
 
     }
     

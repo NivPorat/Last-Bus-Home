@@ -6,13 +6,14 @@ using System.Collections.Generic; //for lists
 using System;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class XMLManager : MonoBehaviour
 {
     public GameObject UsernameInput;
     public GameObject TextToDisplay;
     public GameObject PasswordToSave;
-    public PlayerData Playerdata = new PlayerData();
+    public static PlayerData Playerdata = new PlayerData();
     public PlayerDatabase PlayerDB;
     private string UserNameEntered = string.Empty;
     public static XMLManager XMLmanager;//singleton
@@ -20,11 +21,7 @@ public class XMLManager : MonoBehaviour
     private void Awake()
     {
         XMLmanager = this;
-
-
     }
-
-
 
     //opens XML file and updates it with new data
     public void SavePlayerData()
@@ -67,8 +64,7 @@ public class XMLManager : MonoBehaviour
         XmlSerializer serializer = new XmlSerializer(typeof(PlayerDatabase));
         using (FileStream stream = new FileStream(Application.dataPath + @"\StreamingFiles\XML\PlayerList.xml", FileMode.Open))
         {
-            if (stream.Position > 0)
-            { stream.Position = 0; }
+            InitDataStream(stream);
             PlayerDB = (PlayerDatabase)serializer.Deserialize(stream);
             flag = CheckIfUserNameExistsInDB(flag);
             stream.Close();
@@ -104,15 +100,16 @@ public class XMLManager : MonoBehaviour
 
     private void CreatePlayerData()
     {
-        CreateNewPlayerEntry();
-        PlayerDB.Players.Add(Playerdata);
+        CreateNewPlayerEntry();//var playerdata initialize
+        PlayerDB.Players.Add(Playerdata);//add current var playerdata to DB
         //write to XML FILE
         TextToDisplay.GetComponent<Text>().text = "You have been successfully registered";
     }
 
-    //an inclass semi constructor
     private void CreateNewPlayerEntry()
     {
+
+        //an inclass semi constructor
         Playerdata.id = "P" + PlayerDB.Players.Count;
         Playerdata.UserName = UserNameEntered;
         Playerdata.Password = PasswordToSave.GetComponent<Text>().text;
@@ -128,28 +125,42 @@ public class XMLManager : MonoBehaviour
         XmlSerializer serializer = new XmlSerializer(typeof(PlayerDatabase));
         using (FileStream stream = new FileStream(Application.dataPath + @"\StreamingFiles\XML\PlayerList.xml", FileMode.Open))
         {
-            if (stream.Position > 0)
-            { stream.Position = 0; }
+            InitDataStream(stream);
             PlayerDB = (PlayerDatabase)serializer.Deserialize(stream);
-            if (!(CheckIfUserNameExistsInDB(flag)))
+            if (!(CheckIfUserNameExistsInDB(flag)))//checks if username exists in XML file
             {
-                if (Playerdata != null)
+                if (Playerdata != null)//if it exists and playerdata was not null 
                 {
+                    if (Playerdata.UserName == null || Playerdata.Password == null)
+                    {
+                        TextToDisplay.GetComponent<Text>().text = "Incorrect Username or Password.\n Try again";
+                        return;
+                    }
                     UserNameEntered = UsernameInput.GetComponent<Text>().text;
-
-
                     if (Playerdata.UserName.Equals(UserNameEntered) && Playerdata.Password.Equals(PasswordToSave.GetComponent<Text>().text))
                     {
                         TextToDisplay.GetComponent<Text>().text = "Entered Username is Verified.\n The bus will arrive shortly..";
-                        Invoke(SceneLoader.LoadLevel("MainMenu"), Time.deltaTime * 0.000000005f);
+                        StartCoroutine(Wait(50.0f));
+                        DontDestroyOnLoad(this);
+                        SceneManager.LoadScene(3);
                     }
                 }
             }
         }
+        IEnumerator Wait(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+        }
        
     }
-   
 
+    private static void InitDataStream(FileStream stream)
+    {
+        if (stream.Position > 0)
+        { stream.Position = 0; }
+    }
+
+   
 
     /*---------------------------------------------------------------------------------------*/
     [Serializable, XmlRoot(ElementName = "Players")]
@@ -196,12 +207,12 @@ public class XMLManager : MonoBehaviour
         public override string ToString()
         {
             return ("Player ID = " + id +
-                    " Username = " + UserName +
-                     " Password = " + Password +
-                     " Points = " + points +
-                     " MaxLevel = " + MaxLevel +
-                     " LastLevel = " + LastLevelPassed +
-                     " Time = " + Time);
+                    "\n Username = " + UserName +
+                     "\n Password = " + Password +
+                     "\n Points = " + points +
+                     "\n MaxLevel = " + MaxLevel +
+                     "\n LastLevel = " + LastLevelPassed +
+                     "\n Time = " + Time);
         }
     }
 }

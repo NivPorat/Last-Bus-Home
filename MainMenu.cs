@@ -23,7 +23,10 @@ public class MainMenu : XMLManager
     }
     public void Chooselevel()
     {
-        int LevelNumber = Playerdata.MaxLevel;
+        int LevelNumber = 0;
+        if (Playerdata == null)  LevelNumber = 1;
+        else
+          LevelNumber = Playerdata.MaxLevel;
         switch (LevelNumber)
         {
             case 1:

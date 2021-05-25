@@ -20,6 +20,11 @@ public class oscillator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Oscillate();
+    }
+
+    protected void Oscillate()
+    {
         if (period <= Mathf.Epsilon) return;
         float cycles = Time.time / period;
 
@@ -30,5 +35,22 @@ public class oscillator : MonoBehaviour
 
         Vector3 Offset = movementVector * MovementFactor;
         transform.position = StartingPos + Offset;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Player")
+        {
+
+            collision.collider.transform.SetParent(transform);
+        }
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+
+            collision.collider.transform.SetParent(null);
+        }
     }
 }

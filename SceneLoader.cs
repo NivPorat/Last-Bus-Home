@@ -7,10 +7,9 @@ public class SceneLoader : XMLManager
 {
     
     //this class is a utility class used for scene management
-    public static string LoadLevel(string sceneNameString)
+    public static void LoadLevel(string sceneNameString)
     {
         SceneManager.LoadScene(sceneNameString);
-        return string.Empty;
     }
 
     public void LoadGuestMod()

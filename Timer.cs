@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Timer : MonoBehaviour
 {
@@ -7,13 +8,33 @@ public class Timer : MonoBehaviour
     public float CurrentTime;
     public bool timerIsRunning = true;
     public TextMeshProUGUI TimerText;
+    public int Level;
+    
 
     // Start is called before the first frame update
     void Start()
     {
+        Level = SceneManager.GetActiveScene().buildIndex;
         if (instance == null)
             instance = this;
-        CurrentTime = 10.0f;
+        switch (Level)
+        {
+            case 4:
+                {
+                    CurrentTime = 240f;
+                    break;
+                }
+            case 5:
+                {
+                    CurrentTime = 300f;
+                    break;
+                }
+            case 6:
+                {
+                    CurrentTime = 360f;
+                    break;
+                }
+        }
         TimerText = GetComponent<TextMeshProUGUI>();
     }
 

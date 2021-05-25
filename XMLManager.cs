@@ -127,7 +127,7 @@ public class XMLManager : MonoBehaviour
         {
             InitDataStream(stream);
             PlayerDB = (PlayerDatabase)serializer.Deserialize(stream);
-            if (!(CheckIfUserNameExistsInDB(flag)))//checks if username exists in XML file
+            if (!(CheckIfUserNameExistsInDB(flag)) &&  Playerdata.UserName != string.Empty)//checks if username exists in XML file
             {
                 if (Playerdata != null)//if it exists and playerdata was not null 
                 {
@@ -146,6 +146,7 @@ public class XMLManager : MonoBehaviour
                     }
                 }
             }
+            SceneManager.LoadScene(1);
         }
         IEnumerator Wait(float duration)
         {

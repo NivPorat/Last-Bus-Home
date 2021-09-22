@@ -2,29 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-
+//Niv Porat and Artiom Sheremetiev
 public class scoreManager : MonoBehaviour
 {
-    public static scoreManager instance;
+    public static scoreManager score_manager;
     public TextMeshProUGUI scoreCounter;
     public int score;
     // Start is called before the first frame update
     void Start()
     {
-        if (instance == null)
-            instance = this;
+        if (score_manager == null)
+            score_manager = this;
         scoreCounter = GetComponent<TextMeshProUGUI>();
         score = 0;
-
-        //scoreCounter.text = score;
     }
 
 
     // Update is called once per frame
     public void changeScore()
     {
-        //score += coinValue;
-        score+=1;
-        scoreCounter.text = "X" + " "+ score.ToString();
+        score += 1;
+        scoreCounter.text = "x "+ score.ToString();
     }
 }

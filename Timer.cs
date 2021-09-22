@@ -1,44 +1,36 @@
 ﻿using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-
+//Niv Porat and Artiom Sheremetiev
+/// <summary>
+/// using system time and game time
+/// class controls game timer, display
+/// level time and time formatting
+/// </summary>
 public class Timer : MonoBehaviour
 {
-    public static Timer instance;
-    public float CurrentTime;
+    public static Timer instance;//instance of timer object
+    public float CurrentTime;//displays current time in game
     public bool timerIsRunning = true;
-    public TextMeshProUGUI TimerText;
-    public int Level;
+    public TextMeshProUGUI TimerText;//reference for timer text display
+    public int Level;//level number (1,2,3)
+    private float LevelSeconds = 40f;//global var to change time for each level
+    public float LevelTime;
     
 
-    // Start is called before the first frame update
+
     void Start()
     {
-        Level = SceneManager.GetActiveScene().buildIndex;
+        
+        Level = SceneManager.GetActiveScene().buildIndex;//level gets int from build index of level
+        LevelTime = Level * LevelSeconds;
         if (instance == null)
             instance = this;
-        switch (Level)
-        {
-            case 4:
-                {
-                    CurrentTime = 240f;
-                    break;
-                }
-            case 5:
-                {
-                    CurrentTime = 300f;
-                    break;
-                }
-            case 6:
-                {
-                    CurrentTime = 360f;
-                    break;
-                }
-        }
+
+        CurrentTime = LevelTime;//current level number * defined seconds = time for each level
         TimerText = GetComponent<TextMeshProUGUI>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (timerIsRunning)
@@ -56,7 +48,7 @@ public class Timer : MonoBehaviour
             }
         }
     }
-
+    //utility method to format time display
     void DisplayTime(float timeToDisplay)
     {
         timeToDisplay += 1;
